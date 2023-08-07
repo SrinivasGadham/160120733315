@@ -1,8 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const NodeCache = require('node-cache');
+const body_parser= require('body-parser');
 
-router.post("/register", async (req, res) => {
+
+
+router.post("/register", body_parser.json(),async (req, res) => {
+ console.log(req.body);
   const companyName = req.body.companyName;
   const ownerName = req.body.ownerName;
   const rollNo = req.body.rollNo;
@@ -16,13 +21,13 @@ router.post("/register", async (req, res) => {
       ownerEmail: ownerEmail,
       accessCode: accessCode,
     });
-    res.send(response.json());
+    res.send(response.data);
   } catch (error) {
     res.send(error);
   }
 });
 
-router.post("/auth", async (req, res) => {
+router.post("/auth",  body_parser.json(),async (req, res) => {
   const companyName = req.body.companyName;
   const clientID = req.body.clientID;
   const clientSecret = req.body.clientSecret;
@@ -35,27 +40,36 @@ router.post("/auth", async (req, res) => {
       rollNo: rollNo,
       companyName: companyName,
       ownerEmail: ownerEmail,
+      ownerName:ownerName,
       clientSecret: clientSecret,
       clientID: clientID,
     });
-    res.send(response.json());
+    res.send(response.data);
   } catch (error) {
     res.send(error);
   }
 });
 
-router.get("getTrainsData/:trainNumber", async (req, res) => {
-  const trainNumber = req.params.trainNumber;
+router.get("/getTrainsData",  body_parser.json(),async (req, res) => {
+  const trainNumber = req.query.trainNumber;
+  const authToken= req.headers.authorization;
+  console.log(authToken);
   try {
     if (trainNumber != null) {
       const response = await axios.get(
-        `http://20.244.56.144/train/trains/` + `${trainNumber}`
+        `http://20.244.56.144/train/trains/` + `${trainNumber}`,
+        {headers:{Authorization:authToken}}
       );
-        res.send(response.json());
+      console.log(response);
+        res.send(response.data);
 
     } else {
-      const response = await axios.get(`http://20.244.56.144/train/trains/`);
-        res.send(response.json());
+        console.log(authToken)
+      const response = await axios.get(`http://20.244.56.144/train/trains/`,{headers:{Authorization:authToken}});
+      
+      console.log(response);
+
+        res.send(response.data);
 
     }
   } catch (error) {
