@@ -1,7 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const NodeCache = require('node-cache');
-
+require("dotenv").config();
 var routes= require('./routes');
 
 const app = express();
